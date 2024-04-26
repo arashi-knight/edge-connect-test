@@ -98,7 +98,8 @@ class EdgeModel(BaseModel):
         gen_loss = 0
         dis_loss = 0
 
-
+        requires_grad(self.generator, False)
+        requires_grad(self.discriminator, True)
         # discriminator loss
         dis_input_real = torch.cat((images, edges), dim=1)
         dis_input_fake = torch.cat((images, outputs.detach()), dim=1)
@@ -109,6 +110,8 @@ class EdgeModel(BaseModel):
         dis_loss += (dis_real_loss + dis_fake_loss) / 2
 
 
+        requires_grad(self.generator, True)
+        requires_grad(self.discriminator, False)
         # generator adversarial loss
         gen_input_fake = torch.cat((images, outputs), dim=1)
         gen_fake, gen_fake_feat = self.discriminator(gen_input_fake)        # in: (grayscale(1) + edge(1))
@@ -141,6 +144,7 @@ class EdgeModel(BaseModel):
         return outputs
 
     def backward(self, gen_loss=None, dis_loss=None):
+        # self.generator.set_requires_grad(False)
         if dis_loss is not None:
             dis_loss.backward()
         self.dis_optimizer.step()
@@ -157,7 +161,7 @@ class InpaintingModel(BaseModel):
         # generator input: [rgb(3) + edge(1)]
         # discriminator input: [rgb(3)]
         generator = InpaintGenerator()
-        discriminator = Discriminator(in_channels=3, use_sigmoid=config.GAN_LOSS != 'hinge')
+        discriminator = Discriminator(in_channels=2, use_sigmoid=config.GAN_LOSS != 'hinge')
         if len(config.GPU) > 1:
             generator = nn.DataParallel(generator, config.GPU)
             discriminator = nn.DataParallel(discriminator , config.GPU)
@@ -200,7 +204,8 @@ class InpaintingModel(BaseModel):
         gen_loss = 0
         dis_loss = 0
 
-
+        requires_grad(self.generator, False)
+        requires_grad(self.discriminator, True)
         # discriminator loss
         dis_input_real = images
         dis_input_fake = outputs.detach()
@@ -210,7 +215,8 @@ class InpaintingModel(BaseModel):
         dis_fake_loss = self.adversarial_loss(dis_fake, False, True)
         dis_loss += (dis_real_loss + dis_fake_loss) / 2
 
-
+        requires_grad(self.generator, True)
+        requires_grad(self.discriminator, False)
         # generator adversarial loss
         gen_input_fake = outputs
         gen_fake, _ = self.discriminator(gen_input_fake)                    # in: [rgb(3)]
@@ -258,3 +264,8 @@ class InpaintingModel(BaseModel):
 
         gen_loss.backward()
         self.gen_optimizer.step()
+
+
+def requires_grad(model, flag=True):
+    for p in model.parameters():
+        p.requires_grad = flag

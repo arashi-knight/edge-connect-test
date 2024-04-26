@@ -86,7 +86,7 @@ class Trainer_Our():
         #                                    context_channels=config.context_channels, base_block_num=config.base_block_num))
         opt = load_config(1)
         config.DEVICE = torch.device("cuda")
-        torch.backends.cudnn.benchmark = True  # cudnn auto-tuner
+        # torch.backends.cudnn.benchmark = True  # cudnn auto-tuner
 
         self.model = EdgeConnect(opt)
         self.model.load()
@@ -197,10 +197,10 @@ class Trainer_Our():
                 input_image = imgs * masks
                 input_structure = structures * masks
 
-                images_gray = imgs
+                images_gray = input_image
 
                 if mode == 1:
-                    outputs, gen_loss, dis_loss, logs = self.model.edge_model.process(images_gray, structures, masks)
+                    outputs, gen_loss, dis_loss, logs = self.model.edge_model.process(images_gray, input_structure, masks)
                     precision, recall = self.model.edgeacc(structures * masks, outputs * masks)
                     logs.append(('precision', precision.item()))
                     logs.append(('recall', recall.item()))
@@ -669,7 +669,7 @@ if __name__ == '__main__':
     config = Config()
     trainer = Trainer_Our(config)
     # trainer.load_model_last()
-    trainer.val()
+    trainer.train()
     #
     # edge_detect = res_skip()
     #
