@@ -283,27 +283,31 @@ class Trainer_Our():
 
     # 训练
     def train(self):
-        with tqdm(total=20,
+
+        epoch_1 = 30
+        epoch_2 = 30
+        epoch_3 = 30
+        with tqdm(total=epoch_1,
                   bar_format=Fore.MAGENTA + '|{bar:30}|阶段一|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
 
-            for epoch in range(self.epoch, 20):
+            for epoch in range(self.epoch, epoch_1):
                 epoch_pbar.update(1)
                 # 进行一轮训练
                 self.train_epoch(mode=1)
                 epoch_pbar.display()
 
-        with tqdm(total=20,
+        with tqdm(total=epoch_2,
                   bar_format=Fore.MAGENTA + '|{bar:30}|阶段二|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
 
 
-            for epoch in range(self.epoch, 20):
+            for epoch in range(self.epoch, epoch_2):
                 epoch_pbar.update(1)
                 # 进行一轮训练
                 self.train_epoch(mode=2)
                 epoch_pbar.display()
 
 
-        with tqdm(total=self.config.epochs,
+        with tqdm(total=epoch_3,
                   bar_format=Fore.MAGENTA + '|{bar:30}|阶段三|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
 
             psnr_list = []
@@ -316,7 +320,7 @@ class Trainer_Our():
             # self.generator.train()
             start_time = time.time()
 
-            for epoch in range(self.epoch, 30):
+            for epoch in range(self.epoch, epoch_3):
                 epoch_pbar.update(1)
                 # 进行一轮训练
                 self.train_epoch(mode=3)

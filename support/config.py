@@ -145,7 +145,7 @@ class Config():
     # 模型测试间隔
     test_interval:int = 1
     # 模型保存间隔
-    save_interval:int = 20
+    save_interval:int = 10
 
     # 结果保存路径
     result_path: str = os.path.join(ROOT, 'results', str(train_id))
