@@ -128,29 +128,42 @@ class Trainer_Our():
         # 保存路径是否存在
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
+        g_model_path = os.path.join(self.model_path, 'g_model_e.pth')
+        d_model_path = os.path.join(self.model_path, 'd_model_e.pth')
+        torch.save(self.model.edge_model.generator.state_dict(), g_model_path)
+        torch.save(self.model.edge_model.discriminator.state_dict(), d_model_path)
         g_model_path = os.path.join(self.model_path, 'g_model.pth')
         d_model_path = os.path.join(self.model_path, 'd_model.pth')
-        torch.save(self.generator.state_dict(), g_model_path)
-        torch.save(self.discriminator.state_dict(), d_model_path)
+        torch.save(self.model.inpaint_model.generator.state_dict(), g_model_path)
+        torch.save(self.model.inpaint_model.discriminator.state_dict(), d_model_path)
 
     # 保存第x个epoch的模型
     def save_model_epoch(self, epoch):
         # 保存路径是否存在
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
+        # 保存边缘模型
+        g_model_path = os.path.join(self.model_path, 'g_model_e_{}.pth'.format(epoch))
+        d_model_path = os.path.join(self.model_path, 'd_model_e_{}.pth'.format(epoch))
+        torch.save(self.model.edge_model.generator.state_dict(), g_model_path)
+        torch.save(self.model.edge_model.discriminator.state_dict(), d_model_path)
         g_model_path = os.path.join(self.model_path, 'g_model_{}.pth'.format(epoch))
         d_model_path = os.path.join(self.model_path, 'd_model_{}.pth'.format(epoch))
-        torch.save(self.generator.state_dict(), g_model_path)
-        torch.save(self.discriminator.state_dict(), d_model_path)
+        torch.save(self.model.inpaint_model.generator.state_dict(), g_model_path)
+        torch.save(self.model.inpaint_model.discriminator.state_dict(), d_model_path)
     # 保存最后一个epoch的模型
     def save_model_last(self):
         # 保存路径是否存在
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
+        g_model_path = os.path.join(self.model_path, 'g_model_e_last.pth')
+        d_model_path = os.path.join(self.model_path, 'd_model_e_last.pth')
+        torch.save(self.model.edge_model.generator.state_dict(), g_model_path)
+        torch.save(self.model.edge_model.discriminator.state_dict(), d_model_path)
         g_model_path = os.path.join(self.model_path, 'g_model_last.pth')
         d_model_path = os.path.join(self.model_path, 'd_model_last.pth')
-        torch.save(self.generator.state_dict(), g_model_path)
-        torch.save(self.discriminator.state_dict(), d_model_path)
+        torch.save(self.model.inpaint_model.generator.state_dict(), g_model_path)
+        torch.save(self.model.inpaint_model.discriminator.state_dict(), d_model_path)
 
     def load_model_epoch(self, epoch):
         # 保存路径是否存在
@@ -270,8 +283,28 @@ class Trainer_Our():
 
     # 训练
     def train(self):
+        with tqdm(total=20,
+                  bar_format=Fore.MAGENTA + '|{bar:30}|阶段一|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
+
+            for epoch in range(self.epoch, 20):
+                epoch_pbar.update(1)
+                # 进行一轮训练
+                self.train_epoch(mode=1)
+                epoch_pbar.display()
+
+        with tqdm(total=20,
+                  bar_format=Fore.MAGENTA + '|{bar:30}|阶段二|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
+
+
+            for epoch in range(self.epoch, 20):
+                epoch_pbar.update(1)
+                # 进行一轮训练
+                self.train_epoch(mode=2)
+                epoch_pbar.display()
+
+
         with tqdm(total=self.config.epochs,
-                  bar_format=Fore.MAGENTA + '|{bar:30}|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
+                  bar_format=Fore.MAGENTA + '|{bar:30}|阶段三|当前epoch:{n_fmt}/{total_fmt}|已运行时间:{elapsed}|{desc}') as epoch_pbar:
 
             psnr_list = []
             ssim_list = []
@@ -282,18 +315,6 @@ class Trainer_Our():
 
             # self.generator.train()
             start_time = time.time()
-
-            for epoch in range(self.epoch, 20):
-                epoch_pbar.update(1)
-                # 进行一轮训练
-                self.train_epoch(mode=1)
-                epoch_pbar.display()
-
-            for epoch in range(self.epoch, 20):
-                epoch_pbar.update(1)
-                # 进行一轮训练
-                self.train_epoch(mode=2)
-                epoch_pbar.display()
 
             for epoch in range(self.epoch, 30):
                 epoch_pbar.update(1)
