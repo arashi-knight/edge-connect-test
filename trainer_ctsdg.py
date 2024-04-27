@@ -238,7 +238,7 @@ class Trainer_Our():
                 elif mode == 3:
                     # train
                     if True or np.random.binomial(1, 0.5) > 0:
-                        outputs = self.edge_model(images_gray, structures, masks)
+                        outputs = self.model.edge_model(images_gray, structures, masks)
                         outputs = outputs * masks + structures * (1 - masks)
                     else:
                         outputs = structures
@@ -256,7 +256,7 @@ class Trainer_Our():
                     self.model.inpaint_model.backward(gen_loss, dis_loss)
 
                 else:
-                    e_outputs, e_gen_loss, e_dis_loss, e_logs = self.edge_model.process(images_gray, structures, masks)
+                    e_outputs, e_gen_loss, e_dis_loss, e_logs = self.model.edge_model.process(images_gray, structures, masks)
                     e_outputs = e_outputs * masks + structures * (1 - masks)
                     i_outputs, i_gen_loss, i_dis_loss, i_logs = self.model.inpaint_model.process(imgs, e_outputs, masks)
                     outputs_merged = (i_outputs * masks) + (imgs * (1 - masks))
@@ -694,7 +694,7 @@ if __name__ == '__main__':
     config = Config()
     trainer = Trainer_Our(config)
     # trainer.load_model_last()
-    trainer.test()
+    trainer.train()
     #
     # edge_detect = res_skip()
     #
