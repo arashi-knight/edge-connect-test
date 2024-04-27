@@ -694,7 +694,7 @@ if __name__ == '__main__':
     config = Config()
     trainer = Trainer_Our(config)
     # trainer.load_model_last()
-    trainer.train()
+    trainer.test()
     #
     # edge_detect = res_skip()
     #

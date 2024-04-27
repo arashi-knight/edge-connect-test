@@ -161,7 +161,7 @@ class InpaintingModel(BaseModel):
         # generator input: [rgb(3) + edge(1)]
         # discriminator input: [rgb(3)]
         generator = InpaintGenerator()
-        discriminator = Discriminator(in_channels=2, use_sigmoid=config.GAN_LOSS != 'hinge')
+        discriminator = Discriminator(in_channels=1, use_sigmoid=config.GAN_LOSS != 'hinge')
         if len(config.GPU) > 1:
             generator = nn.DataParallel(generator, config.GPU)
             discriminator = nn.DataParallel(discriminator , config.GPU)
