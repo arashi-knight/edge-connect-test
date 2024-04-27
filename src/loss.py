@@ -56,6 +56,9 @@ class StyleLoss(nn.Module):
         self.criterion = torch.nn.L1Loss()
 
     def compute_gram(self, x):
+        # 如果通道不是3，增加维度
+        if x.size(1) != 3:
+            x = x.repeat(1, 3, 1, 1)
         b, ch, h, w = x.size()
         f = x.view(b, ch, w * h)
         f_T = f.transpose(1, 2)
@@ -92,6 +95,11 @@ class PerceptualLoss(nn.Module):
         self.weights = weights
 
     def __call__(self, x, y):
+        # 如果通道不是3，增加维度
+        if x.size(1) != 3:
+            x = x.repeat(1, 3, 1, 1)
+        if y.size(1) != 3:
+            y = y.repeat(1, 3, 1, 1)
         # Compute features
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
 
@@ -185,6 +193,8 @@ class VGG19(torch.nn.Module):
             param.requires_grad = False
 
     def forward(self, x):
+        if x.size(1) != 3:
+            x = x.repeat(1, 3, 1, 1)
         relu1_1 = self.relu1_1(x)
         relu1_2 = self.relu1_2(relu1_1)
 
